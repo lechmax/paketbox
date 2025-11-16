@@ -457,6 +457,8 @@ class TestPaketBox(unittest.TestCase):
         # Step 4: Manual intervention - package removed, system reset
         pbox_state.set_left_door(DoorState.CLOSED)
         pbox_state.set_right_door(DoorState.CLOSED)
+        pbox_state.set_left_motor(MotorState.STOPPED)
+        pbox_state.set_right_motor(MotorState.STOPPED)
         
         # Step 5: Retry operation should work after clearing obstruction
         # Reset timer callback for new attempt
@@ -857,6 +859,8 @@ class TestPaketBoxIntegration(unittest.TestCase):
         pbox_state.set_left_door(DoorState.CLOSED)
         pbox_state.set_right_door(DoorState.CLOSED)
         pbox_state.set_paket_tuer(DoorState.CLOSED)
+        pbox_state.set_left_motor(MotorState.STOPPED)
+        pbox_state.set_right_motor(MotorState.STOPPED)
 
     @patch('paketbox.GPIO')
     @patch('handler.setOutputWithRuntime')
@@ -990,16 +994,17 @@ class TestPaketBoxIntegration(unittest.TestCase):
         # Step 1: Package door closed (starts 10-second timer)
         Paket_Tuer_Zusteller_geschlossen()
         
-        # Verify timer was started
-        self.assertEqual(len(timer_callbacks), 1)
-        delay, callback = timer_callbacks[0]
+        # Find the 10-second delayed opening timer (not the 900-second watchdog from previous open)
+        delayed_open_timers = [(i, d, c) for i, (d, c) in enumerate(timer_callbacks) if d == 10.0]
+        self.assertGreater(len(delayed_open_timers), 0, "Expected at least one 10-second timer")
+        first_timer_idx, delay, callback = delayed_open_timers[0]
         self.assertEqual(delay, 10.0)
         
         # Step 2: Package door opened again within 10 seconds (should cancel timer)
         Paket_Tuer_Zusteller_geoeffnet()
         
         # Verify timer was cancelled
-        timer_instances[0].cancel.assert_called_once()
+        timer_instances[first_timer_idx].cancel.assert_called_once()
         
         # Step 3: Execute the callback anyway (simulating timer that already fired)
         # But door is now open, so should abort
@@ -1013,8 +1018,10 @@ class TestPaketBoxIntegration(unittest.TestCase):
         pbox_state.set_paket_tuer(DoorState.CLOSED)
         Paket_Tuer_Zusteller_geschlossen()
         
-        # Get new callback
-        delay, new_callback = timer_callbacks[1]
+        # Find the new 10-second timer
+        delayed_open_timers_2 = [(i, d, c) for i, (d, c) in enumerate(timer_callbacks) if d == 10.0]
+        self.assertGreater(len(delayed_open_timers_2), 1, "Expected at least two 10-second timers")
+        second_timer_idx, delay2, new_callback = delayed_open_timers_2[1]
         
         # Execute callback with door still closed
         new_callback()
