@@ -1,0 +1,27 @@
+name: Paketbox Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run test suite
+        env:
+          PYTHONPATH: .
+        run: |
+          python3 --version
+          python3 tests/run_tests.py
