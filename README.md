@@ -13,6 +13,12 @@ Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Bo
 - **Thread-sichere Zustandsverwaltung** mit Locking-Mechanismen
 - **Automatische Versionierung** basierend auf Commit-Types
 - **Modulare Architektur** mit separaten Komponenten
+- **15-Minuten-Watchdog** für geöffnete Paketzustellertüren inkl. MQTT-Warnung und Auto-Entleerung
+
+## 🆕 Neueste Änderungen (Herbst 2025)
+- **Watchdog für geöffnete Türen**: In `handler.py` überwacht ein 15-Minuten-Timer offene Paketzustellertüren, verschickt bei Bedarf MQTT-Warnungen und startet automatisch den Entleerungszyklus.
+- **Zentraler TimerManager**: `TimerManager.py` verwaltet jetzt alle Motor-, Prüf- und Watchdog-Timer mit Thread-Lock, wodurch Nothalt-Szenarien sämtliche Timer zuverlässig abbrechen.
+- **Verbesserter Fehler-Reset**: `ResetErrorState()` initialisiert Türsensoren neu, setzt Motorzustände sicher auf `STOPPED` und verhindert doppelte MQTT-Fehlerbenachrichtigungen.
 
 ## 🔧 Hardware
 - **Raspberry Pi** mit GPIO-Steuerung
@@ -25,6 +31,9 @@ Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Bo
   - Bewegungsmelder für Einklemmschutz
 - **Taster** für Gartentüröffner (Nr. 6 und 8)
 - **Beleuchtung** für Mülltonne und Paketbox
+
+![Elektronische Komponenten der Paketbox](electronic_components.jpg)
+*Elektronische Komponenten: Raspberry Pi, Relais-Board, Sensorleitungen und Spannungsversorgung.*
 
 ## 🚀 Quick Start
 
