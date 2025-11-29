@@ -346,7 +346,7 @@ def ResetDoors():
     if pbox_state.is_any_open():
        logger.info("Resetting doors to closed state...")
        lockDoor()
-       return Klappen_oeffnen()
+       return Klappen_schliessen()
     elif pbox_state.is_any_error():
        logger.warning("Doors in error state - manual intervention required!")
        return False
