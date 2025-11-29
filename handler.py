@@ -227,7 +227,7 @@ def Paket_Tuer_Zusteller_geschlossen():
         else:
             logger.warning("Klappen-Öffnung abgebrochen: Paketzusteller-Tür ist wieder geöffnet!")
     
-    delayed_timer = threading.Timer(10.0, delayed_klappen_oeffnen)
+    delayed_timer = threading.Timer(Config.CLOSURE_DELAY, delayed_klappen_oeffnen)
     delayed_timer.start()
     timer_manager.add_timer('delayed_open', delayed_timer)
     # Audiofile: Box wird geleert, dies dauert 2 Minuten
@@ -346,7 +346,7 @@ def ResetDoors():
     if pbox_state.is_any_open():
        logger.info("Resetting doors to closed state...")
        lockDoor()
-       return Klappen_schliessen()
+       return Klappen_oeffnen()
     elif pbox_state.is_any_error():
        logger.warning("Doors in error state - manual intervention required!")
        return False

@@ -1,5 +1,5 @@
 # Paketbox control script
-# Version 0.7.0
+# Version 0.7.1
 import time
 import sys
 import logging
