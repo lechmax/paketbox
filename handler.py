@@ -165,8 +165,8 @@ def Klappen_schliessen():
     pbox_state.set_right_motor(MotorState.CLOSING)
     
     # Start closing motors with timer management
-    timerLeftFlap = setOutputWithRuntime(Config.CLOSURE_TIMER_SECONDS, Config.OUTPUTS[0], GPIO.LOW, 'left_motor')
-    timerRightFlap = setOutputWithRuntime(Config.CLOSURE_TIMER_SECONDS, Config.OUTPUTS[2], GPIO.LOW, 'right_motor')
+    timerLeftFlap = setOutputWithRuntime(Config.MOTOR_REVERSE_SIGNAL_CLOSE, Config.OUTPUTS[0], GPIO.LOW, 'left_motor')
+    timerRightFlap = setOutputWithRuntime(Config.MOTOR_REVERSE_SIGNAL_CLOSE, Config.OUTPUTS[2], GPIO.LOW, 'right_motor')
 
     if not timerLeftFlap or not timerRightFlap:
         logger.error("Fehler beim Starten der Motoren!")
@@ -298,8 +298,8 @@ def Klappen_oeffnen():
     pbox_state.set_right_motor(MotorState.OPENING)
     
     # Start opening motors with timer management
-    timer1 = setOutputWithRuntime(Config.MOTOR_REVERSE_SIGNAL, Config.OUTPUTS[1], GPIO.LOW, 'left_motor')
-    timer2 = setOutputWithRuntime(Config.MOTOR_REVERSE_SIGNAL, Config.OUTPUTS[3], GPIO.LOW, 'right_motor')
+    timer1 = setOutputWithRuntime(Config.MOTOR_REVERSE_SIGNAL_OPEN, Config.OUTPUTS[1], GPIO.LOW, 'left_motor')
+    timer2 = setOutputWithRuntime(Config.MOTOR_REVERSE_SIGNAL_OPEN, Config.OUTPUTS[3], GPIO.LOW, 'right_motor')
 
     if not timer1 or not timer2:
         logger.error("Fehler beim Starten der Motoren!")
@@ -335,7 +335,7 @@ def Klappen_oeffnen():
                logger.error(f"Fehler: Klappen nicht beide im OPEN-Zustand!")
             return True
 
-    timer = threading.Timer(Config.CLOSURE_TIMER_SECONDS + 1, endlagen_pruefung)
+    timer = threading.Timer(Config.OPENING_TIMER_SECONDS + 1, endlagen_pruefung)
     timer.start()
     timer_manager.add_timer('right_check', timer)
     return True
