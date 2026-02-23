@@ -106,8 +106,8 @@ def pinChanged(pin, oldState, newState):
             logger.info(f"Tür Mültonne geöffnet.")
             handler.lichtMueltonneOn()
         elif pin == 10:
-            logger.info(f"Lichtschranke hat ausgelöst.")
-            handler.set_light_barrier_triggered(True)
+            logger.info(f"Lichtschranke ist nicht mehr ausgelöst.")
+            handler.reset_light_barrier()
 
     elif oldState == 1 and newState == 0: # falling edge
         if pin == 0:
@@ -149,8 +149,8 @@ def pinChanged(pin, oldState, newState):
             logger.info(f"Tür Mültonne geschlossen.")
             handler.lichtMueltonneOff()
         elif pin == 10:
-            logger.info(f"Lichtschranke ist nicht mehr ausgelöst.")
-            handler.reset_light_barrier()
+            logger.info(f"Lichtschranke hat ausgelöst.")
+            handler.set_light_barrier_triggered(True)
 
     else:
         logger.warning(f"pinChanged: oldState == newState keine Änderung erkannt.")
