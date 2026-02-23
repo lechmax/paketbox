@@ -2,6 +2,9 @@
 
 ![Tests](https://github.com/AndreasBeyer/paketbox/workflows/Paketbox%20Tests/badge.svg)
 
+![Paketbox](Paketbox.jpeg)
+*Die intelligente Paketbox mit automatischer Lieferannahme und Verriegelung.*
+
 Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über Motoren, Sensoren und Relais mit professioneller Fehlerbehandlung und Logging.
 
 ## ✨ Features
