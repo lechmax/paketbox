@@ -24,8 +24,8 @@ class Config:
     MQTT_TOPIC_BRIEFKASTEN = os.environ.get('MQTT_TOPIC_BRIEFKASTEN', 'home/raspi/briefkasten')
     MQTT_TOPIC_BRIEFKASTEN_ENTLEEREN = os.environ.get('MQTT_TOPIC_BRIEFKASTEN_ENTLEEREN', 'home/raspi/briefkastenleeren')
     MQTT_TOPIC_PAKETBOX_ENTLEEREN = os.environ.get('MQTT_TOPIC_PAKETBOX_ENTLEEREN', 'home/raspi/paketboxleeren')
-    MQTT_TOPIC_PAKETBOX_LOCK_DOOR = os.environ.get('MQTT_TOPIC_PAKETBOX_ENTLEEREN', 'home/raspi/paketboxlockdoor')
-    MQTT_TOPIC_PAKETBOX_AUTO_LOCK_DOOR = os.environ.get('MQTT_TOPIC_PAKETBOX_ENTLEEREN', 'home/raspi/paketboxautolockdoor')  
+    MQTT_TOPIC_PAKETBOX_LOCK_DOOR = os.environ.get('MQTT_TOPIC_PAKETBOX_LOCK_DOOR', 'home/raspi/paketboxlockdoor')
+    MQTT_TOPIC_PAKETBOX_AUTO_LOCK_DOOR = os.environ.get('MQTT_TOPIC_PAKETBOX_AUTO_LOCK_DOOR', 'home/raspi/paketboxautolockdoor')  
 
 
     # GPIO pin assignments
