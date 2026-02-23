@@ -138,8 +138,8 @@ def pinChanged(pin, oldState, newState):
             if mqttObject:
                 mqttObject.publish_paketbox_entleeren_event("OFF")
             handler.setLigthtPaketboxOff()
-            handler.ResetErrorState()
-            handler.ResetDoors()
+            # handler.ResetErrorState()
+            # handler.ResetDoors()
         elif pin == 8:
             logger.info(f"Türöffner Taster 6 gedrückt.")
         elif pin == 9:
