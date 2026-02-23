@@ -99,9 +99,6 @@ def pinChanged(pin, oldState, newState):
             if mqttObject:
                 mqttObject.publish_paketbox_entleeren_event("ON")
             handler.setLigthtPaketboxOn()
-            if handler.isAnyMotorRunning():
-                logger.warning("Nothalt: Türen sind offen, Motoren werden angehalten.")
-                handler.notHaltMotoren()
         elif pin == 9:  
             logger.info(f"Tür Mültonne geöffnet.")
             handler.lichtMueltonneOn()
