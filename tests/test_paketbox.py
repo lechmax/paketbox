@@ -692,7 +692,7 @@ class TestPaketBox(unittest.TestCase):
         test_cases_falling = [
             (8, "Türöffner Taster 6"),
             (9, "Türöffner Taster 8"),
-            (10, "Bewegungsmelder"),
+            (10, "Lichtschranke"),
         ]
         
         for pin, description in test_cases_falling:
