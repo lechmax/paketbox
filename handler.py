@@ -448,7 +448,8 @@ def auto_check_and_lock_door():
             lockDoor()
             if mqttObject:
                 try:
-                    mqttObject.publish_status(f"{time.strftime('%Y-%m-%d %H:%M:%S')} Türe wurde automatisch verriegelt (Sperrzeit).")
+                    # timestamp automatically prepended by publish_status
+                    mqttObject.publish_status("Türe wurde automatisch verriegelt (Sperrzeit).")
                 except Exception as e:
                     logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
         
@@ -457,7 +458,7 @@ def auto_check_and_lock_door():
             unlockDoor()
             if mqttObject:
                 try:
-                    mqttObject.publish_status(f"{time.strftime('%Y-%m-%d %H:%M:%S')} Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
+                    mqttObject.publish_status("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
                 except Exception as e:
                     logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
     

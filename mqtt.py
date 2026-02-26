@@ -7,6 +7,7 @@ except ImportError:
 
 import logging
 import time
+from datetime import datetime
 from config import Config as config
 
 logger = logging.getLogger(__name__)
@@ -109,8 +110,11 @@ def publish_status(message):
         return False
         
     if _client:
-        _client.publish(config.MQTT_TOPIC_MESSAGE, message)
-        logger.info(f"MQTT gesendet: {message}")
+        # prepend current date/time to every status message automatically
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        full_message = f"{ts} {message}"
+        _client.publish(config.MQTT_TOPIC_MESSAGE, full_message)
+        logger.info(f"MQTT gesendet: {full_message}")
         return True
     else:
         logger.warning("MQTT-Client nicht verbunden, Nachricht nicht gesendet.")

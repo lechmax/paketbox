@@ -390,6 +390,24 @@ class TestPaketBox(unittest.TestCase):
         # Timer should not be started for endlagen_pruefung
         mock_timer.assert_not_called()
 
+    def test_publish_status_adds_timestamp(self):
+        """Verify that mqtt.publish_status prefixes messages with a date/time string."""
+        import mqtt
+        # ensure MQTT_AVAILABLE is True and client is mocked
+        mqtt.MQTT_AVAILABLE = True
+        mock_client = MagicMock()
+        mqtt._client = mock_client
+
+        result = mqtt.publish_status("Testnachricht")
+        self.assertTrue(result, "publish_status should return True when client present")
+        # ensure publish was called exactly once
+        mock_client.publish.assert_called_once()
+        topic, sent = mock_client.publish.call_args[0]
+        self.assertEqual(topic, mqtt.config.MQTT_TOPIC_MESSAGE)
+        # message should start with a timestamp like 'YYYY-MM-DD HH:MM:SS '
+        import re
+        self.assertRegex(sent, r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} Testnachricht$")
+
     @patch('handler.get_gpio')
     @patch('handler.setOutputWithRuntime')
     @patch('handler.threading.Timer')
