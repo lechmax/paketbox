@@ -136,3 +136,161 @@ max_paket_box/
 ├── tests/
 │   ├── test_paketbox.py     # Umfassende Unit Tests
    ... (rest of content continues same as original)
+
+
+### Modulare Architektur (Version 0.7.0)
+Das System wurde in separate Module aufgeteilt:
+- **`paketbox.py`**: Hauptsteuerung und GPIO-Event-Loop
+- **`handler.py`**: GPIO-Handler und Motor-Steuerungsfunktionen
+- **`state.py`**: Zentrale Zustandsverwaltung für Thread-Sicherheit
+- **`config.py`**: Alle Konfigurationen und GPIO-Pin-Zuordnungen
+- **`PaketBoxState.py`**: Enum-Definitionen für Tür- und Motorstatus
+- **`TimerManager.py`**: Sichere Verwaltung von Motor-Timern
+- **`mqtt.py`**: MQTT-Integration mit Fallback-Mechanismus
+
+## ⚙️ Konfiguration (config.py)
+
+Die `config.py` enthält alle Systemparameter und GPIO-Pin-Zuordnungen:
+
+### Timer & Steuerung
+```python
+CLOSURE_DELAY = 60              # Verzögerung vor dem Schließen der Klappen (Sekunden)
+CLOSURE_TIMER_SECONDS = 65      # Zeit zum automatischen Schließen der Klappen
+OPENING_TIMER_SECONDS = 65      # Zeit zum automatischen Öffnen der Klappen
+DEBOUNCE_TIME = 0.2             # Entprellungszeit für Sensoren (Sekunden)
+```
+
+### Türverriegelung
+```python
+TIME_LOCK_DOOR = "00:00"        # Uhrzeit: Türverriegelung aktiviert
+TIME_UNLOCK_DOOR = "05:30"      # Uhrzeit: Türverriegelung deaktiviert (Lieferung möglich)
+```
+
+## 🔄 Automatische Versionierung
+
+Das Projekt verwendet automatische Versionierung basierend auf [Conventional Commits](https://www.conventionalcommits.org/):
+
+```bash
+feat: neue Funktion     → MINOR Version (0.7.0 → 0.8.0)
+fix: Bugfix            → PATCH Version (0.7.0 → 0.7.1)  
+BREAKING CHANGE:       → MAJOR Version (0.7.0 → 1.0.0)
+```
+
+**Setup**: `python setup_versioning.py`
+**Dokumentation**: Siehe `VERSIONING.md`
+
+## 🌐 MQTT-Integration
+
+Das System unterstützt MQTT für IoT-Benachrichtigungen:
+
+```bash
+# MQTT-Konfiguration über Umgebungsvariablen
+export MQTT_BROKER="your-mqtt-broker.local"
+export MQTT_USER="username"
+export MQTT_PASS="password"
+
+# Oder Standard-Fallback-Werte verwenden (für Tests)
+python paketbox.py  # Verwendet Fallback-Werte wenn MQTT nicht verfügbar
+```
+
+**MQTT-Topics**:
+- `home/raspi/paketbox_text` - Statusnachrichten
+- `home/raspi/paketbox` - Paket-Zusteller-Events
+- `home/raspi/briefkasten` - Briefkasten-Events
+- `home/raspi/paketboxleeren` - Paketbox-Entleerungs-Events
+
+## 🛡️ Lichtschranke - Sicherheitseinrichtung
+
+Die Lichtschranke ist eine kritische Sicherheitseinrichtung zum Schutz vor Einklemmungen:
+
+### Funktionsweise
+- **PIN 10** erfasst kontinuierlich den Betriebszustand
+- **Auslösung**: Wenn die Schranke unterbrochen wird (z.B. Finger/Hand im Weg)
+- **Notfall-Reaktion**: Motor stoppt sofort, um Verletzungen zu vermeiden
+- **Überwachung**: System protokolliert jede Auslösung im Logger
+
+### Automatische Reaktion
+```python
+if GPIO.input(10) == FALLING:              # Lichtschranke unterbrochen
+    handler.set_light_barrier_triggered(True)
+    logger.info("Lichtschranke hat ausgelöst - Notfall!")
+    handler.notHaltMotoren()               # Alle Motoren stoppen sofort
+```
+
+### Sicherheitsprotokoll
+- ✅ **Sofortiger Motorstopp** bei Erkennung von Hindernissen
+- ✅ **Fehlerprotokollierung** für Wartungsstatistiken
+- ✅ **Manuelle Rückstellung** erforderlich nach Auslösung
+- ✅ **Integrale Prüfung** bei System-Reset
+
+Diese Funktion entspricht Sicherheitsanforderungen für automatische Türsysteme.
+
+## ⚠️ Sicherheit & Fehlerbehandlung
+
+### Automatische Fehlererkennung
+- **Lichtschran-Auslösung**: Sofortiger Motorstopp bei Oberflächenblockade
+- **Motor-Blockage**: Erkennung wenn Klappen nicht öffnen/schließen
+- **GPIO-Fehler**: Behandlung von Hardware-Fehlern
+- **Timer-Management**: Sichere Abbruchfunktionen für alle Timer
+- **Error-Recovery**: Automatische Wiederherstellung nach Fehlern
+
+### Reset-Funktionen
+```python
+# Manueller Reset bei Fehlerzuständen
+handler.ResetErrorState()  # Setzt alle Fehler zurück
+handler.ResetDoors()       # Bringt Türen in sicheren Zustand
+```
+
+### Deployment
+```bash
+# Lokal testen (immer zuerst!)
+python paketbox.py
+
+# Tests ausführen vor Deployment
+python tests/run_tests.py
+
+# Auf Raspberry Pi übertragen
+./deploy_paketbox.sh pi 192.168.1.100 /home/pi/paketbox     # Linux/macOS
+deploy_paketbox.bat pi 192.168.1.100 /home/pi/paketbox      # Windows
+```
+
+## 🧪 Test-Coverage
+
+Die Test-Suite deckt ab:
+- ✅ Alle GPIO-Event-Handler (Klappen, Türen, Sensoren)
+- ✅ Alle Motor-Steuerungsfunktionen (Öffnen/Schließen mit Timern)
+- ✅ Tür-Verriegelung/Entriegelung
+- ✅ Komplette Lieferzyklen (End-to-End)
+- ✅ Fehlererkennung und Wiederherstellung
+- ✅ Thread-sichere Zustandsverwaltung
+- ✅ GPIO-Debouncing und Timer-Operationen
+- ✅ MQTT-Integration (mit Fallback)
+- ✅ Motor-Blockage-Szenarien
+
+### Validierung
+```bash
+# Kritische Validierung nach Änderungen
+python tests/run_tests.py  # Alle Tests müssen bestehen
+python paketbox.py         # Anwendung muss ohne Fehler starten
+```
+
+## 📊 System-Requirements
+
+### Laufzeit-Abhängigkeiten
+- **Python 3.7+**: Hauptsprache
+- **Standard-Bibliotheken**: threading, logging, time, enum
+- **Optional**: paho-mqtt (für MQTT-Funktionalität)
+- **Hardware**: RPi.GPIO (nur auf Raspberry Pi)
+
+### Entwicklungs-Abhängigkeiten  
+- **unittest**: Für Tests (integriert)
+- **unittest.mock**: Für Hardware-Mocking (integriert)
+- **Keine externen Tools**: Vollständig in Python implementiert
+
+## Lizenz
+MIT
+
+## Autoren
+- Andreas Beyer
+- Maximilian Lechner
+
