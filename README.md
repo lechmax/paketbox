@@ -5,7 +5,7 @@
 ![Paketbox](blueprint/Paketbox.jpeg)
 *Die intelligente Paketbox mit automatischer Lieferannahme und Verriegelung.*
 
-Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über Motoren, Sensoren und Relais mit professioneller Fehlerbehandlung und Logging.
+Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über zwei Elektormotoren und diversen Sensoren mit professioneller Fehlerbehandlung und Logging.
 
 ## ✨ Features
 - **Automatisches Öffnen und Schließen** der Entleerungsklappen
@@ -16,13 +16,12 @@ Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Bo
 - **Mock-Modus** für lokale Entwicklung ohne Hardware
 - **MQTT-Integration** für IoT-Benachrichtigungen
 - **Thread-sichere Zustandsverwaltung** mit Locking-Mechanismen
-
 - **Modulare Architektur** mit separaten Komponenten
 - **15-Minuten-Watchdog** für geöffnete Paketzustellertüren inkl. MQTT-Warnung und Auto-Entleerung
 - **Lichtschranke mit Notstopp** für Schutz vor Einklemmungen
 - **MQTT-basierte Steuerung** (Status, Zusteller/Briefkasten/Entleerung, Auto-Lock-Door)
 - **Zeitgesteuerte Türverriegelung** mit konfigurierbaren Sperrzeiten
-- **Ereignisse für Briefkasten & Paketbox** (ON/OFF) plus Entleerungsbetrieb
+- **Ereignisse für Briefkasten & Paketbox** über MQTT Entleerungsbetrieb
 
 ## 🆕 Neueste Änderungen (Frühjahr 2026)
 - **Watchdog für geöffnete Türen**: In `handler.py` überwacht ein 15-Minuten-Timer offene Paketzustellertüren, verschickt bei Bedarf MQTT-Warnungen und startet automatisch den Entleerungszyklus.
@@ -30,15 +29,76 @@ Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Bo
 - **Verbesserter Fehler-Reset**: `ResetErrorState()` initialisiert Türsensoren neu, setzt Motorzustände sicher auf `STOPPED` und verhindert doppelte MQTT-Fehlerbenachrichtigungen.
 
 ## 🔧 Hardware
+
+### 🏗️ Bauweise und Konstruktion
+
+#### Korpus und Verkleidung
+- **Skelett**: 22mm Sekieferplatten für Stabilität und Witterungsbeständigkeit
+- **Dachabdichtung**: Wetterfeste Untersparrenbahn zum Schutz vor Feuchte
+- **Außenverkleidung**: Lärchenbretter für natürlichen, langlebigen Wetterschutz und ästhetisches Erscheinungsbild
+
+#### Dach
+- **Hauptelement**: Edelstahlwanne mit zwei Überläufen für sichere Wasserableitung
+- **Wassermanagement**: Dränage- und Wasserspeicherelement mit Filtervlies
+- **Begrünung**: Sedum-Dachbegrünung für Isolierung, Regenwasserbewirtschaftung und Ästhetik
+
+### 🚪 Türen und Klappen
+
+Die Paketbox verfügt über mehrere spezialisierte Öffnungen:
+
+#### 1. **Paketzustellungsklappe** (mit Motorenantrieb)
+- Von der Straße/Gehweg zugänglich
+- Mit automatischem Seilzug-System ausgestattet (Feder + Gegengewicht)
+- Automatisches Schließen nach Paketeinwurf
+- **Automatisierte Entleerung**: Nach Paketeinwurf und Klappenschließung verriegelt ein Magnetbolzen die Tür
+- Zwei **Linearmotoren** fahren dann synchron die beiden unteren Entleerungsklappen auf
+- Pakete fallen durch die Linearmotoren-Klappen in den unteren Bereich
+- Klappen schließen automatisch nach vollständiger Öffnung
+- Tür entriegelt, wenn Klappen oben sind – Prozess kann erneut beginnen
+
+#### 2. **Briefkastenklappe**
+- Zum Entnehmen von Briefen aus dem integrierten Briefkasten
+- Mit Magnetschalter ausgestattet
+
+#### 3. **Mülltonnentür**
+- Separate Tür zur sicheren Unterbringung der Mülltonne
+- Mit Magnetschalter ausgestattet
+
+### 🔐 Verriegelung und Sicherheit
+
+#### Magnetbolzen-System
+- **Automatische Verriegelung**: Nach Paketeinwurf wird die Paketzustellungstür mit einem Magnetbolzen verriegelt
+- Verhindert unbeabsichtigtes erneutes Öffnen während des Entleerungsvorgangs
+- Entsperrt automatisch, wenn die inneren Klappen wieder geschlossen sind
+
+#### Lichtschranke
+- **Position**: Unterhalb der elektrischen Entleerungsklappen
+- **Funktionen**:
+  - **Einklemmschutz**: Erkennt Hindernisse und unterbricht den Motorvorgang
+  - **Schutz vor Überfüllung**: Verhindert, dass zu viele Pakete eingelagert werden
+  - **Notfallvoraussetzung**: Auslöser für Nothalt-Szenarien
+
+### 📡 Sensorik und Steuerung
+
+#### Magnetkontaktsensoren
+- In **allen Türen und Klappen** eingebaut
+- Erkennen Öffnen und Schließen der einzelnen Komponenten
+- Liefern Rückmeldung für sichere Zustandsverfolgung
+
+#### Endlagensensoren
+- An beiden **Linearmotor-Klappen** für Position (offen/geschlossen)
+- Ermöglichen sichere Koordination des Öffnungs- und Schließvorgangs
+
+#### Steuerelektronik
 - **Raspberry Pi** mit GPIO-Steuerung
-- **2 Motoren** für Entleerungsklappen mit Endlagensensoren
-- **Relais-Board** für Motorsteuerung und Türverriegelung
-- **Sensoren**:
-  - Endlagensensoren für beide Klappen (offen/geschlossen)
-  - Magnetkontaktsensoren für Paketzustellertür
-  - Briefkastensensoren für Entnahme
-  - **Lichtschranke** für Einklemmschutz (GPIO 11)
-- **Beleuchtung** für Mülltonne und Paketbox
+- **Relais-Board** für Motorsteuerung und Magnetbolzen-Verriegelung
+- **2 Linearmotoren** mit präziser Positionskontrolle für Entleerungsklappen
+
+### 💡 Beleuchtung
+
+- **Automatische Beleuchtung** in den Fächern für Mülltonne und Pakete
+- Wird durch Magnetschalter bei Türöffnung ein- und ausgeschaltet
+- Verbessert Benutzerfreundlichkeit und Sicherheit
 
 ![Elektronische Komponenten der Paketbox](blueprint/electronic_components.jpg)
 *Elektronische Komponenten: Raspberry Pi, Relais-Board, Sensorleitungen und Spannungsversorgung.*
@@ -68,11 +128,6 @@ python tests/run_tests.py
 
 ```
 
-### Produktive Verwendung
-```bash
-# Auf Raspberry Pi mit Hardware
-python paketbox.py
-```
 
 ## 🛠️ Entwicklung & Test
 
