@@ -43,11 +43,11 @@ def ResetErrorState():
         
         # Reset motor states from ERROR to STOPPED
         if pbox_state.is_any_motor_error():
-            logger.info("Setze Motor-Fehlerzustände zurück...")
+            logger.debug("Setze Motor-Fehlerzustände zurück...")
             from PaketBoxState import MotorState
             pbox_state.set_left_motor(MotorState.STOPPED)
             pbox_state.set_right_motor(MotorState.STOPPED)
-            logger.info("Motor-Zustände auf STOPPED zurückgesetzt")
+            logger.debug("Motor-Zustände auf STOPPED zurückgesetzt")
         
         global sendMqttErrorState
         sendMqttErrorState = False  # Reset MQTT error state flag
