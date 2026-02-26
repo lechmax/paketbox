@@ -10,7 +10,6 @@ import mqtt
 from datetime import datetime
 
 
-
 # Import GPIO from paketbox to use the same Mock/Real GPIO instance
 def get_gpio():
     """Lazy import to avoid circular imports"""
