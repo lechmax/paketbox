@@ -42,6 +42,9 @@ Dieses Projekt steuert eine intelligente Paketbox mit einem **Raspberry Pi W2**.
 - **Wassermanagement**: Dränage- und Wasserspeicherelement mit Filtervlies
 - **Begrünung**: Sedum-Dachbegrünung für Isolierung, Regenwasserbewirtschaftung und Ästhetik
 
+![Paketbox Draufsicht](blueprint/Paketbox_Draufsicht.jpg)
+*Draufsicht der Paketbox zeigt die räumliche Anordnung der Paketzustellungsklappe, Briefkastenklappe und Mülltonnentür.*
+
 ### 🚪 Türen und Klappen
 
 Die Paketbox verfügt über mehrere spezialisierte Öffnungen:
