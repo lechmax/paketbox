@@ -4,6 +4,7 @@ import asyncio
 import threading
 import time
 
+
 # Importiere die wichtigsten Symbole aus dem Hauptscript
 from paketbox import DoorState, MotorState, initialize_door_states, pinChanged
 from state import pbox_state  # Import from central state module
