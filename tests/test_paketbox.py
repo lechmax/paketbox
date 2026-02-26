@@ -1057,7 +1057,7 @@ class TestPaketBoxIntegration(unittest.TestCase):
         mock_send.reset_mock()
         # rising edge briefkasten
         pinChanged(5, 0, 1)
-        mock_send.assert_called_with("Neuer Brief im Briefkasten")
+        mock_send.assert_called_with("Neue Post im Briefkasten")
     
     @patch('handler.mqtt_send_status')
     def test_light_barrier_notifications(self, mock_send):

@@ -207,7 +207,7 @@ def main():
            # Monitor for error conditions
            if ( not sendMqttErrorState and pbox_state.is_any_error()):
                logger.warning(f"WARNUNG: System im Fehlerzustand! {pbox_state}")
-                handler.mqtt_send_status(f"FEHLER Paketbox: {pbox_state}")
+               handler.mqtt_send_status(f"FEHLER Paketbox: {pbox_state}")
                sendMqttErrorState = True
     except KeyboardInterrupt:
         logger.info("Beendet mit Strg+C")
