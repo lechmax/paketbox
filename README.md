@@ -135,10 +135,12 @@ max_paket_box/
 ├── mqtt.py                  # MQTT-Integration für IoT-Benachrichtigungen
 ├── tests/
 │   ├── test_paketbox.py     # Umfassende Unit Tests
-   ... (rest of content continues same as original)
+│   └── run_tests.py         # Test Runner mit detailliertem Output
+├── paketbox.log             # Strukturierte Log-Datei
+└── README.md                # Diese Datei
+```
 
-
-### Modulare Architektur (Version 0.7.0)
+### Modulare Architektur (Version 0.8.0)
 Das System wurde in separate Module aufgeteilt:
 - **`paketbox.py`**: Hauptsteuerung und GPIO-Event-Loop
 - **`handler.py`**: GPIO-Handler und Motor-Steuerungsfunktionen
@@ -164,16 +166,6 @@ DEBOUNCE_TIME = 0.2             # Entprellungszeit für Sensoren (Sekunden)
 ```python
 TIME_LOCK_DOOR = "00:00"        # Uhrzeit: Türverriegelung aktiviert
 TIME_UNLOCK_DOOR = "05:30"      # Uhrzeit: Türverriegelung deaktiviert (Lieferung möglich)
-```
-
-## 🔄 Automatische Versionierung
-
-Das Projekt verwendet automatische Versionierung basierend auf [Conventional Commits](https://www.conventionalcommits.org/):
-
-```bash
-feat: neue Funktion     → MINOR Version (0.7.0 → 0.8.0)
-fix: Bugfix            → PATCH Version (0.7.0 → 0.7.1)  
-BREAKING CHANGE:       → MAJOR Version (0.7.0 → 1.0.0)
 ```
 
 **Setup**: `python setup_versioning.py`
@@ -209,14 +201,6 @@ Die Lichtschranke ist eine kritische Sicherheitseinrichtung zum Schutz vor Einkl
 - **Notfall-Reaktion**: Motor stoppt sofort, um Verletzungen zu vermeiden
 - **Überwachung**: System protokolliert jede Auslösung im Logger
 
-### Automatische Reaktion
-```python
-if GPIO.input(10) == FALLING:              # Lichtschranke unterbrochen
-    handler.set_light_barrier_triggered(True)
-    logger.info("Lichtschranke hat ausgelöst - Notfall!")
-    handler.notHaltMotoren()               # Alle Motoren stoppen sofort
-```
-
 ### Sicherheitsprotokoll
 - ✅ **Sofortiger Motorstopp** bei Erkennung von Hindernissen
 - ✅ **Fehlerprotokollierung** für Wartungsstatistiken
@@ -239,19 +223,6 @@ Diese Funktion entspricht Sicherheitsanforderungen für automatische Türsysteme
 # Manueller Reset bei Fehlerzuständen
 handler.ResetErrorState()  # Setzt alle Fehler zurück
 handler.ResetDoors()       # Bringt Türen in sicheren Zustand
-```
-
-### Deployment
-```bash
-# Lokal testen (immer zuerst!)
-python paketbox.py
-
-# Tests ausführen vor Deployment
-python tests/run_tests.py
-
-# Auf Raspberry Pi übertragen
-./deploy_paketbox.sh pi 192.168.1.100 /home/pi/paketbox     # Linux/macOS
-deploy_paketbox.bat pi 192.168.1.100 /home/pi/paketbox      # Windows
 ```
 
 ## 🧪 Test-Coverage
