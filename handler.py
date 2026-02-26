@@ -129,26 +129,21 @@ def setOutputWithRuntime(runtime, gpio, state, timer_id=None):
 # region Light Barrier Functions
 
 def set_light_barrier_triggered(triggered):
-    """Set the light barrier triggered state and notify via MQTT."""
+    """Set the light barrier triggered state."""
     global light_barrier_triggered
     light_barrier_triggered = triggered
     state = "ausgelöst" if triggered else "zurückgesetzt"
     logger.warning(f"Lichtschranke {state}.")
-
-    # send MQTT notification with timestamp
-    # message text is kept simple; helper will prefix timestamp
-    mqtt_send_status(f"Lichtschranke {state}")
 
 def is_light_barrier_triggered():
     """Check if light barrier is currently triggered."""
     return light_barrier_triggered
 
 def reset_light_barrier():
-    """Reset light barrier state and notify via MQTT."""
+    """Reset light barrier state."""
     global light_barrier_triggered
     light_barrier_triggered = False
     logger.info("Lichtschranke-Status zurückgesetzt.")
-    mqtt_send_status("Lichtschranke zurückgesetzt")
 
 # endregion
     
@@ -400,33 +395,6 @@ def ResetDoors():
 
 # endregion
 
-# region MQTT Helper
-
-# Shared utility for sending status messages with timestamp and error handling
-
-def mqtt_send_status(message: str) -> bool:
-    """Send a status message via MQTT (if available).
-
-    This wraps the mqtt.publish_status call and catches any exceptions so
-    that the rest of the application doesn't need to duplicate try/except
-    code.  The underlying MQTT method will automatically prefix the text
-    with a timestamp.
-
-    Returns ``True`` if the message was sent, ``False`` otherwise.
-    """
-    try:
-        if mqttObject and hasattr(mqttObject, 'publish_status'):
-            mqttObject.publish_status(message)
-            return True
-        else:
-            logger.debug(f"MQTT nicht verfügbar – Status ignoriert: {message}")
-            return False
-    except Exception as exc:
-        logger.error(f"Fehler beim Senden der MQTT-Nachricht: {exc}")
-        return False
-
-# endregion
-
 # region Auto Lock Door Time Functions
 
 # Global variable to track auto lock door setting
@@ -478,12 +446,20 @@ def auto_check_and_lock_door():
         if should_be_locked and not is_currently_locked:
             logger.info("Automatische Verriegelung: Tür wird verriegelt (Sperrzeit aktiv).")
             lockDoor()
-            mqtt_send_status("Türe wurde automatisch verriegelt (Sperrzeit).")
+            if mqttObject:
+                try:
+                    mqttObject.publish_status(f"{time.strftime('%Y-%m-%d %H:%M:%S')} Türe wurde automatisch verriegelt (Sperrzeit).")
+                except Exception as e:
+                    logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
         
         elif not should_be_locked and is_currently_locked:
             logger.info("Automatische Entsperrung: Tür wird entriegelt (Sperrzeit vorbei).")
             unlockDoor()
-            mqtt_send_status("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
+            if mqttObject:
+                try:
+                    mqttObject.publish_status(f"{time.strftime('%Y-%m-%d %H:%M:%S')} Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
+                except Exception as e:
+                    logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
     
     except Exception as e:
         logger.error(f"Fehler bei automatischer Türverriegelung: {e}")

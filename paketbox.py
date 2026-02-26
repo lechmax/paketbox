@@ -1,6 +1,6 @@
 # Paketbox control script
-# Version 0.8.7
-import time
+# Version 0.8.9
+# import time
 import sys
 import logging
 from PaketBoxState import DoorState, MotorState
@@ -84,28 +84,23 @@ def pinChanged(pin, oldState, newState):
             pbox_state.set_paket_tuer(DoorState.OPEN)
             logger.info(f"Paketklappe Zusteller geöffnet.") 
             handler.Paket_Tuer_Zusteller_geoeffnet()
-            handler.mqtt_send_status("Neues Paket in der Paketbox")
             if mqttObject:
                 mqttObject.publish_paket_zusteller_event("ON")
         elif pin == 5:
             logger.info(f"Briefkasten Zusteller geöffnet.")
-            handler.mqtt_send_status("Neue Post im Briefkasten")
             if mqttObject:
                 mqttObject.publish_briefkasten_event("ON")
         elif pin == 6:
             logger.info(f"Briefkasten Türe zum Leeren geöffnet.")
-            handler.mqtt_send_status("Briefkasten wurde geleert")
             if mqttObject:
                 mqttObject.publish_briefkasten_entleeren_event("ON")
         elif pin == 7:
             logger.info(f"Paketbox Türe zum Leeren geöffnet.")
-            handler.mqtt_send_status("Paketbox wurde geleert")
             if mqttObject:
                 mqttObject.publish_paketbox_entleeren_event("ON")
             handler.setLigthtPaketboxOn()
         elif pin == 9:  
             logger.info(f"Tür Mültonne geöffnet.")
-            handler.mqtt_send_status("Tür Mültonne geöffnet")
             handler.lichtMueltonneOn()
         elif pin == 10:
             logger.info(f"Lichtschranke ist nicht mehr ausgelöst.")
@@ -146,7 +141,7 @@ def pinChanged(pin, oldState, newState):
             # handler.ResetErrorState()
             # handler.ResetDoors()
         elif pin == 8:
-            logger.info(f"Reserve input Pin außer Betrieb.")
+            logger.info(f"Türöffner Taster 6 gedrückt.")
         elif pin == 9:
             logger.info(f"Tür Mültonne geschlossen.")
             handler.lichtMueltonneOff()
@@ -173,8 +168,7 @@ def main():
         global mqttObject
         mqttObject = mqtt
         mqttObject.start_mqtt()
-        # use handler helper for timestamped, safe publish
-        handler.mqtt_send_status("Paketbox bereit.")
+        mqttObject.publish_status(f"{time.strftime('%Y-%m-%d %H:%M:%S')} Paketbox bereit.")
         # Initialize door states based on current GPIO readings
         statusOld = initialize_door_states()
         statusNew = [0] * len(Config.INPUTS)
@@ -207,8 +201,10 @@ def main():
            # Monitor for error conditions
            if ( not sendMqttErrorState and pbox_state.is_any_error()):
                logger.warning(f"WARNUNG: System im Fehlerzustand! {pbox_state}")
-               handler.mqtt_send_status(f"FEHLER Paketbox: {pbox_state}")
+               if mqttObject:
+                   mqttObject.publish_status(f"{time.strftime('%Y-%m-%d %H:%M:%S')} FEHLER Paketbox: {pbox_state}")
                sendMqttErrorState = True
+
     except KeyboardInterrupt:
         logger.info("Beendet mit Strg+C")
     except Exception as e:
