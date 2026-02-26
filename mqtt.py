@@ -103,15 +103,27 @@ def stop_mqtt():
         logger.info("MQTT-Client gestoppt.")
 
 def publish_status(message):
-    """Sendet eine Statusnachricht über MQTT."""
+    """Send a status message over MQTT.
+
+    This implementation adds a timestamp prefix and catches any
+    exceptions raised during publishing, returning ``False`` if the
+    operation failed.  It is safe to call from anywhere in the code
+    without additional try/except blocks.
+    """
+    timestamped = f"{time.strftime('%Y-%m-%d %H:%M:%S')} {message}"
+
     if not MQTT_AVAILABLE:
-        logger.debug(f"MQTT nicht verfügbar - Status ignoriert: {message}")
+        logger.debug(f"MQTT nicht verfügbar - Status ignoriert: {timestamped}")
         return False
         
     if _client:
-        _client.publish(config.MQTT_TOPIC_MESSAGE, message)
-        logger.info(f"MQTT gesendet: {message}")
-        return True
+        try:
+            _client.publish(config.MQTT_TOPIC_MESSAGE, timestamped)
+            logger.info(f"MQTT gesendet: {timestamped}")
+            return True
+        except Exception as exc:
+            logger.error(f"Fehler beim MQTT-Publish: {exc}")
+            return False
     else:
         logger.warning("MQTT-Client nicht verbunden, Nachricht nicht gesendet.")
         return False

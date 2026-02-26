@@ -7,6 +7,7 @@ import time
 # Importiere die wichtigsten Symbole aus dem Hauptscript
 from paketbox import DoorState, MotorState, initialize_door_states, pinChanged
 from state import pbox_state  # Import from central state module
+import handler  # module needed for helper functions and MQTT notifications
 from handler import (
     Klappen_oeffnen, Klappen_schliessen, Klappen_oeffnen_abbrechen,
     unlockDoor, lockDoor,
@@ -1032,6 +1033,40 @@ class TestPaketBoxIntegration(unittest.TestCase):
         
         # Verify flap opening was called this time
         mock_oeffnen.assert_called_once()
+
+    # ---------- new tests for MQTT helper and notifications ----------
+    
+    @patch('handler.mqttObject')
+    def test_send_status_delegates_and_handles_exception(self, mock_mqttobj):
+        # correct delegation when publish succeeds
+        mock_mqttobj.publish_status = MagicMock()
+        result = handler.mqtt_send_status("noop")
+        mock_mqttobj.publish_status.assert_called_once_with("noop")
+        self.assertTrue(result)
+        
+        # simulate publish failure
+        mock_mqttobj.publish_status.side_effect = Exception("fail")
+        result2 = handler.mqtt_send_status("oops")
+        self.assertFalse(result2)
+    
+    @patch('handler.mqtt_send_status')
+    def test_pinChanged_sends_notifications(self, mock_send):
+        # rising edge package
+        pinChanged(4, 0, 1)
+        mock_send.assert_called_with("Neues Paket in der Paketbox")
+        mock_send.reset_mock()
+        # rising edge briefkasten
+        pinChanged(5, 0, 1)
+        mock_send.assert_called_with("Neuer Brief im Briefkasten")
+    
+    @patch('handler.mqtt_send_status')
+    def test_light_barrier_notifications(self, mock_send):
+        handler.set_light_barrier_triggered(True)
+        mock_send.assert_called_with("Lichtschranke ausgelöst")
+        handler.set_light_barrier_triggered(False)
+        mock_send.assert_called_with("Lichtschranke zurückgesetzt")
+        handler.reset_light_barrier()
+        mock_send.assert_called_with("Lichtschranke zurückgesetzt")
 
 if __name__ == '__main__':
     unittest.main()
