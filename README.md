@@ -5,7 +5,7 @@
 ![Paketbox](blueprint/Paketbox.jpeg)
 *Die intelligente Paketbox mit automatischer Lieferannahme und Verriegelung.*
 
-Dieses Projekt steuert eine intelligente Paketbox mit einem Raspberry Pi. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über zwei Elektormotoren und diversen Sensoren mit professioneller Fehlerbehandlung und Logging.
+Dieses Projekt steuert eine intelligente Paketbox mit einem **Raspberry Pi W2**. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über zwei Elektormotoren und diverse Sensoren mit professioneller Fehlerbehandlung und Logging. Sensorein- und Motorausgänge sind galvanisch über Optokoppler vom Raspberry Pi getrennt.
 
 ## ✨ Features
 - **Automatisches Öffnen und Schließen** der Entleerungsklappen
@@ -90,7 +90,11 @@ Die Paketbox verfügt über mehrere spezialisierte Öffnungen:
 - Ermöglichen sichere Koordination des Öffnungs- und Schließvorgangs
 
 #### Steuerelektronik
-- **Raspberry Pi** mit GPIO-Steuerung
+- **Raspberry Pi W2** als zentrale Steuereinheit mit GPIO-Kontrolle
+- **Galvanische Trennung**: Sensorein- und Motorausgänge sind über Optokoppler galvanisch vom Raspberry Pi getrennt
+  - Schützt die empfindliche Elektronik des Raspberry Pi vor Spannungsspitzen und Störungen
+  - Erhöht die Zuverlässigkeit und Lebensdauer der Steuerung
+  - Ermöglicht sichere Arbeit mit unterschiedlichen Spannungssystemen
 - **Relais-Board** für Motorsteuerung und Magnetbolzen-Verriegelung
 - **2 Linearmotoren** mit präziser Positionskontrolle für Entleerungsklappen
 
@@ -127,7 +131,6 @@ python paketbox.py
 python tests/run_tests.py
 
 ```
-
 
 ## 🛠️ Entwicklung & Test
 
@@ -177,22 +180,25 @@ logging.basicConfig(level=logging.DEBUG)
 
 ## 📁 Projektstruktur
 
-Die Bilder für die Dokumentation liegen im Ordner `blueprint`.
-
 ```
 max_paket_box/
-├── paketbox.py              # Hauptsteuerung (Version 0.7.0)
-├── handler.py               # Handler-Funktionen für GPIO und Motoren
-├── state.py                 # Zentrale Zustandsverwaltung
-├── config.py                # Konfiguration und GPIO-Pin-Zuordnungen
-├── PaketBoxState.py         # Zustandsklassen (Door/Motor States)
-├── TimerManager.py          # Timer-Verwaltung für Motoren
-├── mqtt.py                  # MQTT-Integration für IoT-Benachrichtigungen
+├── paketbox.py                     # Hauptsteuerung (Version 0.7.0)
+├── handler.py                      # Handler-Funktionen für GPIO und Motoren
+├── state.py                        # Zentrale Zustandsverwaltung
+├── config.py                       # Konfiguration und GPIO-Pin-Zuordnungen
+├── PaketBoxState.py                # Zustandsklassen (Door/Motor States)
+├── TimerManager.py                 # Timer-Verwaltung für Motoren
+├── mqtt.py                         # MQTT-Integration für IoT-Benachrichtigungen
+├── blueprint/
+│   ├── electronic_components.jpg   # Aufbau Schaltschrank mit Raspberry Pi 
+│   ├── Paketbox Seitenansicht.jpg  # Technische Zeichnung Korpus Seitenasicht
+│   ├── Paketbox_Draufsicht.jpg     # Technische Zeichnung Korpus Draufsicht
+│   └── Paketbox.jpeg               # Ansicht fertige Paketbox
 ├── tests/
-│   ├── test_paketbox.py     # Umfassende Unit Tests
-│   └── run_tests.py         # Test Runner mit detailliertem Output
-├── paketbox.log             # Strukturierte Log-Datei
-└── README.md                # Diese Datei
+│   ├── test_paketbox.py            # Umfassende Unit Tests
+│   └── run_tests.py                # Test Runner mit detailliertem Output
+├── paketbox.log                    # Strukturierte Log-Datei
+└── README.md                       # Diese Datei
 ```
 
 ### Modulare Architektur (Version 0.8.0)
