@@ -260,7 +260,7 @@ python paketbox.py  # Verwendet Fallback-Werte wenn MQTT nicht verfügbar
 Die Lichtschranke ist eine kritische Sicherheitseinrichtung zum Schutz vor Einklemmungen:
 
 ### Funktionsweise
-- **PIN 10** erfasst kontinuierlich den Betriebszustand
+- **Lichtschranke** erfasst kontinuierlich den Betriebszustand
 - **Auslösung**: Wenn die Schranke unterbrochen wird (z.B. Finger/Hand im Weg)
 - **Notfall-Reaktion**: Motor stoppt sofort, um Verletzungen zu vermeiden
 - **Überwachung**: System protokolliert jede Auslösung im Logger

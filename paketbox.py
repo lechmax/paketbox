@@ -1,6 +1,5 @@
 # Paketbox control script
-# Version 0.8.10
-# import time
+# Version 0.8.11
 import sys
 import logging
 from PaketBoxState import DoorState, MotorState
