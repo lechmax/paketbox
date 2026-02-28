@@ -129,7 +129,7 @@ def pinChanged(pin, oldState, newState):
             pbox_state.set_paket_tuer(DoorState.CLOSED)
             logger.info(f"Paketklappe Zusteller geschlossen.")
             if mqttObject:
-                mqttObject.publish_paket_zusteller_event("OFF")  
+                mqttObject.publish_paket_zusteller_event("OFF")
             handler.Paket_Tuer_Zusteller_geschlossen()
         elif pin == 5:
             logger.info(f"Briefkasten Zusteller geschlossen.")

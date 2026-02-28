@@ -448,20 +448,13 @@ def auto_check_and_lock_door():
             logger.info("Automatische Verriegelung: Tür wird verriegelt (Sperrzeit aktiv).")
             lockDoor()
             if state.mqttObject:
-                try:
-                    # timestamp automatically prepended by publish_status
-                    state.mqttObject.publish_status("Türe wurde automatisch verriegelt (Sperrzeit).")
-                except Exception as e:
-                    logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
+                state.mqttObject.publish_status("Türe wurde automatisch verriegelt (Sperrzeit).")
         
         elif not should_be_locked and is_currently_locked:
             logger.info("Automatische Entsperrung: Tür wird entriegelt (Sperrzeit vorbei).")
             unlockDoor()
             if state.mqttObject:
-                try:
-                    state.mqttObject.publish_status("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
-                except Exception as e:
-                    logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
+                state.mqttObject.publish_status("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
     
     except Exception as e:
         logger.error(f"Fehler bei automatischer Türverriegelung: {e}")
