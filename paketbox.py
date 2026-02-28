@@ -175,6 +175,12 @@ def main():
 
         global mqttObject
         mqttObject = mqtt
+        # keep central state module in sync so other modules can reference it
+        try:
+            import state
+            state.mqttObject = mqtt
+        except ImportError:
+            pass
         mqttObject.start_mqtt()
         mqttObject.publish_status("Paketbox bereit.")
         # Initialize door states based on current GPIO readings
