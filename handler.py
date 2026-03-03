@@ -4,7 +4,8 @@ import logging
 from PaketBoxState import DoorState, MotorState
 from TimerManager import TimerManager
 from config import Config
-from state import pbox_state, sendMqttErrorState, mqttObject  # Import from central state module
+from state import pbox_state, sendMqttErrorState  # Import from central state module
+import state  # use state.mqttObject dynamically to stay in sync
 import time
 import mqtt
 from datetime import datetime
@@ -446,21 +447,14 @@ def auto_check_and_lock_door():
         if should_be_locked and not is_currently_locked:
             logger.info("Automatische Verriegelung: Tür wird verriegelt (Sperrzeit aktiv).")
             lockDoor()
-            if mqttObject:
-                try:
-                    # timestamp automatically prepended by publish_status
-                    mqttObject.publish_status("Türe wurde automatisch verriegelt (Sperrzeit).")
-                except Exception as e:
-                    logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
+            if state.mqttObject:
+                state.mqttObject.publish_status("Türe wurde automatisch verriegelt (Sperrzeit).")
         
         elif not should_be_locked and is_currently_locked:
             logger.info("Automatische Entsperrung: Tür wird entriegelt (Sperrzeit vorbei).")
             unlockDoor()
-            if mqttObject:
-                try:
-                    mqttObject.publish_status("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
-                except Exception as e:
-                    logger.debug(f"MQTT-Publish fehlgeschlagen: {e}")
+            if state.mqttObject:
+                state.mqttObject.publish_status("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
     
     except Exception as e:
         logger.error(f"Fehler bei automatischer Türverriegelung: {e}")

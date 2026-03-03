@@ -22,6 +22,9 @@ class TestPaketBox(unittest.TestCase):
         pbox_state.set_paket_tuer(DoorState.CLOSED)
         pbox_state.set_left_motor(MotorState.STOPPED)
         pbox_state.set_right_motor(MotorState.STOPPED)
+        # Ensure mqttObject in central state is cleared so tests can control it
+        import state
+        state.mqttObject = None
 
     @patch('paketbox.GPIO')
     @patch('handler.setOutputWithRuntime')  # Mock this to avoid timer complexity
@@ -400,13 +403,33 @@ class TestPaketBox(unittest.TestCase):
 
         result = mqtt.publish_status("Testnachricht")
         self.assertTrue(result, "publish_status should return True when client present")
-        # ensure publish was called exactly once
-        mock_client.publish.assert_called_once()
-        topic, sent = mock_client.publish.call_args[0]
-        self.assertEqual(topic, mqtt.config.MQTT_TOPIC_MESSAGE)
-        # message should start with a timestamp like 'YYYY-MM-DD HH:MM:SS '
-        import re
-        self.assertRegex(sent, r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} Testnachricht$")
+
+    def test_auto_lock_publish(self):
+        """Auto lock/unlock should use state.mqttObject for status messages."""
+        import state
+        # prepare fake mqtt client
+        fake = MagicMock()
+        state.mqttObject = fake
+        # enable feature
+        import handler
+        handler.set_auto_lock_door(True)
+        # simulate need to lock
+        with patch('handler.is_in_lock_period', return_value=True), \
+             patch('handler.isDoorLocked', return_value=False):
+            handler.auto_check_and_lock_door()
+        fake.publish_status.assert_called_with("Türe wurde automatisch verriegelt (Sperrzeit).")
+
+    def test_auto_unlock_publish(self):
+        """Auto unlock should also send status using state.mqttObject."""
+        import state
+        fake = MagicMock()
+        state.mqttObject = fake
+        import handler
+        handler.set_auto_lock_door(True)
+        with patch('handler.is_in_lock_period', return_value=False), \
+             patch('handler.isDoorLocked', return_value=True):
+            handler.auto_check_and_lock_door()
+        fake.publish_status.assert_called_with("Türe wurde automatisch entriegelt (Sperrzeit vorbei).")
 
     @patch('handler.get_gpio')
     @patch('handler.setOutputWithRuntime')

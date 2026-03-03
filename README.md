@@ -5,7 +5,7 @@
 ![Paketbox](blueprint/Paketbox.jpeg)
 *Die intelligente Paketbox mit automatischer Lieferannahme und Verriegelung.*
 
-Dieses Projekt steuert eine intelligente Paketbox mit einem **Raspberry Pi W2**. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über zwei Elektormotoren und diverse Sensoren mit professioneller Fehlerbehandlung und Logging. Sensorein- und Motorausgänge sind galvanisch über Optokoppler vom Raspberry Pi getrennt.
+Dieses Projekt steuert eine intelligente Paketbox mit einem **Raspberry Pi Zero W2**. Die Box kann Pakete sicher aufnehmen, automatisch verriegeln und entleeren. Die Steuerung erfolgt über zwei Elektormotoren und diverse Sensoren mit professioneller Fehlerbehandlung und Logging. Sensorein- und Motorausgänge sind galvanisch über Optokoppler vom Raspberry Pi getrennt.
 
 ## ✨ Features
 - **Automatisches Öffnen und Schließen** der Entleerungsklappen
@@ -93,7 +93,7 @@ Die Paketbox verfügt über mehrere spezialisierte Öffnungen:
 - Ermöglichen sichere Koordination des Öffnungs- und Schließvorgangs
 
 #### Steuerelektronik
-- **Raspberry Pi W2** als zentrale Steuereinheit mit GPIO-Kontrolle
+- **Raspberry Pi Zero W2** als zentrale Steuereinheit mit GPIO-Kontrolle
 - **Galvanische Trennung**: Sensorein- und Motorausgänge sind über Optokoppler galvanisch vom Raspberry Pi getrennt
   - Schützt die empfindliche Elektronik des Raspberry Pi vor Spannungsspitzen und Störungen
   - Erhöht die Zuverlässigkeit und Lebensdauer der Steuerung
@@ -260,7 +260,7 @@ python paketbox.py  # Verwendet Fallback-Werte wenn MQTT nicht verfügbar
 Die Lichtschranke ist eine kritische Sicherheitseinrichtung zum Schutz vor Einklemmungen:
 
 ### Funktionsweise
-- **PIN 10** erfasst kontinuierlich den Betriebszustand
+- **Lichtschranke** erfasst kontinuierlich den Betriebszustand
 - **Auslösung**: Wenn die Schranke unterbrochen wird (z.B. Finger/Hand im Weg)
 - **Notfall-Reaktion**: Motor stoppt sofort, um Verletzungen zu vermeiden
 - **Überwachung**: System protokolliert jede Auslösung im Logger

@@ -1,6 +1,5 @@
 # Paketbox control script
-# Version 0.8.10
-# import time
+# Version 0.8.11
 import sys
 import logging
 from PaketBoxState import DoorState, MotorState
@@ -129,7 +128,7 @@ def pinChanged(pin, oldState, newState):
             pbox_state.set_paket_tuer(DoorState.CLOSED)
             logger.info(f"Paketklappe Zusteller geschlossen.")
             if mqttObject:
-                mqttObject.publish_paket_zusteller_event("OFF")  
+                mqttObject.publish_paket_zusteller_event("OFF")
             handler.Paket_Tuer_Zusteller_geschlossen()
         elif pin == 5:
             logger.info(f"Briefkasten Zusteller geschlossen.")
@@ -175,6 +174,12 @@ def main():
 
         global mqttObject
         mqttObject = mqtt
+        # keep central state module in sync so other modules can reference it
+        try:
+            import state
+            state.mqttObject = mqtt
+        except ImportError:
+            pass
         mqttObject.start_mqtt()
         mqttObject.publish_status("Paketbox bereit.")
         # Initialize door states based on current GPIO readings
