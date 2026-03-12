@@ -92,6 +92,10 @@ def isAnyMotorRunning():
     """Check if any motor is currently running using state management."""
     return pbox_state.is_any_motor_running()
 
+def isAnyMotorError():
+    """Check if any motor is currently in error state using state management."""
+    return pbox_state.is_any_motor_error()
+
 def setLigthtPaketboxOn():
     GPIO = get_gpio()
     GPIO.output(Config.OUTPUTS[6], GPIO.LOW) # Licht an
@@ -187,7 +191,7 @@ def Klappen_schliessen():
         notHaltMotoren()
         return False
     
-    if pbox_state.is_any_error():
+    if isAnyMotorError():
         logger.warning("Motorsteuerung gestoppt: Globaler Fehlerzustand aktiv!")
         return False
     
@@ -365,14 +369,10 @@ def Klappen_oeffnen():
             # Reset light barrier when flaps open (for emptying process)
             # reset_light_barrier()
             # Set motor states to STOPPED after successful opening
-            pbox_state.set_left_motor(MotorState.STOPPED)
-            pbox_state.set_right_motor(MotorState.STOPPED)
+            # pbox_state.set_left_motor(MotorState.STOPPED)
+            # pbox_state.set_right_motor(MotorState.STOPPED)
             logger.info(f"Starte automatisches Schließen der Klappen... Status: {pbox_state}")
-            # Auto-close after successful opening
-            if (pbox_state.left_door == DoorState.OPEN and pbox_state.right_door == DoorState.OPEN):
-               Klappen_schliessen()
-            else:
-               logger.error(f"Fehler: Klappen nicht beide im OPEN-Zustand!")
+            Klappen_schliessen()
             return True
 
     timer = threading.Timer(Config.OPENING_TIMER_SECONDS + 1, endlagen_pruefung)
@@ -440,6 +440,10 @@ def auto_check_and_lock_door():
     if not is_auto_lock_door_enabled():
         return
     
+    if isAnyMotorRunning() or isAnyMotorError():
+        logger.debug("Automatische Verriegelung übersprungen: Motoren laufen gerade oder sind im Fehlerzustand.")
+        return
+
     try:
         should_be_locked = is_in_lock_period()
         is_currently_locked = isDoorLocked()
